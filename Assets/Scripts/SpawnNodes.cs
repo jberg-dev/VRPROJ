@@ -22,44 +22,37 @@ public class SpawnNodes : MonoBehaviour
          *  
          */
 
-        double[] arranged_points = new double[num_points];
+        //double[] arranged_points = new double[num_points];
+        //double[] phi = new double[num_points];
+        //double[] theta = new double[num_points];
+        //Vector3[] vectors = new Vector3[num_points];
+
+
+
+
 
         for (int i = 0; i < num_points; i++)
         {
-            arranged_points[i] = i + 0.5f;
+            double arranged_point = i + 0.5f;
+            double phi = Math.Acos(1 - ((2 * arranged_point) / num_points));
+            double theta = Math.PI * (1 + Math.Pow(5, 0.5)) * arranged_point;
+
+            float x = (float)(Math.Cos(theta) * Math.Sin(phi));
+            float y = (float)(Math.Sin(theta) * Math.Sin(phi));
+            float z = (float)Math.Cos(phi);
+
+            // Basically, increase the radius the more objects there are to display by multiplying
+            // the positions values with the square root of the amount of nodes, but do not go below the multiplier 1.
+            Vector3 vector = new Vector3((float)(x * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))),
+                                         (float)(y * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))),
+                                         (float)(z * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))));
+
+            Vector3 centerPointPosition = centerPoint.gameObject.transform.position;
+
+            Instantiate(myPrefab, vector + centerPointPosition, Quaternion.identity);
+
+
         }
-
-        double[] phi = new double[num_points];
-
-        for (int j = 0; j < num_points; j++)
-        {
-            phi[j] = Math.Acos(1 - ((2*arranged_points[j])/num_points));
-        }
-
-        double[] theta = new double[num_points];
-
-        for (int k = 0; k < num_points; k++)
-        {
-            theta[k] = Math.PI * (1 + Math.Pow(5, 0.5)) * arranged_points[k];
-        }
-
-        Vector3[] vectors = new Vector3[num_points];
-
-        for (int l = 0; l < num_points; l++)
-        {
-            float x = (float)(Math.Cos(theta[l]) * Math.Sin(phi[l])); 
-            float y = (float)(Math.Sin(theta[l]) * Math.Sin(phi[l]));
-            float z = (float)Math.Cos(phi[l]);
-
-
-            vectors[l] = new Vector3(x, y, z);
-        }
-
-        for(int m = 0; m < num_points; m++)
-        {
-            Instantiate(myPrefab, vectors[m] + centerPoint.gameObject.transform.position, Quaternion.identity);
-        }
-
     }
 
     // Update is called once per frame
