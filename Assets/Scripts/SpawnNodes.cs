@@ -19,18 +19,21 @@ public class SpawnNodes : MonoBehaviour
          * 
          * "The golden spiral method to distibute points on a sphere using the sunflower"
          * https://stackoverflow.com/a/44164075
+         * 
+         * The code below is adapted from the stackoverflow link above.
          *  
          */
-
-        //double[] arranged_points = new double[num_points];
-        //double[] phi = new double[num_points];
-        //double[] theta = new double[num_points];
-        //Vector3[] vectors = new Vector3[num_points];
-
-
-
-
-
+        // This is currently demo code for how the nodes of the social network will be implemented.
+        //
+        // TODO for real implementation:
+        // 1) Data structure to keep track of nodes
+        // 2) Refactor function into a proper method instead of a random script attached to a random object.
+        //      a) This means that it will be connected with the data parser, most likely.
+        //      b) Don't have no data to parse currently, so nothing to do about that........
+        // 3) Insert data into the nodes so they properly reperesent the network "node", I.E.;
+        //      a) Size from how many connections there are
+        //      b) Color from what gender the node represents(?)
+        //      c) Make a structure for the "links" to be drawn between "friends".
         for (int i = 0; i < num_points; i++)
         {
             double arranged_point = i + 0.5f;
