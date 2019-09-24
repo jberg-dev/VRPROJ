@@ -8,6 +8,8 @@ public class SpawnNodes : MonoBehaviour
     public int num_points;
     public GameObject myPrefab;
     public GameObject centerPoint;
+    private GameObject[] holder;
+    private System.Random r = new System.Random();
 
     // Start is called before the first frame update
     void Start()
@@ -23,6 +25,10 @@ public class SpawnNodes : MonoBehaviour
          * The code below is adapted from the stackoverflow link above.
          *  
          */
+
+        
+        holder = new GameObject[num_points];
+
         // This is currently demo code for how the nodes of the social network will be implemented.
         //
         // TODO for real implementation:
@@ -52,7 +58,9 @@ public class SpawnNodes : MonoBehaviour
 
             Vector3 centerPointPosition = centerPoint.gameObject.transform.position;
 
-            Instantiate(myPrefab, vector + centerPointPosition, Quaternion.identity);
+            holder[i] = Instantiate(myPrefab, vector + centerPointPosition, Quaternion.identity) as GameObject;
+
+            
 
 
         }
@@ -61,6 +69,15 @@ public class SpawnNodes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown("space"))
+        { 
+            for (int i = 0; i < num_points; i++)
+            {
+                Material mat = holder[i].GetComponent<Renderer>().material;
+                Color color = mat.color;
+                color.a = (float)r.NextDouble();
+                mat.color = color;
+            }
+        }
     }
 }
