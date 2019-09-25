@@ -9,11 +9,14 @@ public class SpawnNodes : MonoBehaviour
     public GameObject myPrefab;
     public GameObject centerPoint;
     private GameObject[] holder;
-    private System.Random r = new System.Random();
+    private readonly System.Random r = new System.Random();
 
     // Start is called before the first frame update
     void Start()
     {
+
+        holder = new GameObject[num_points];
+
         /* 
          * Referens för att distribuera noder på en yta med "repulsive force" så att alla noder får
          * så stort utrymme som det är möjligt.
@@ -22,12 +25,9 @@ public class SpawnNodes : MonoBehaviour
          * "The golden spiral method to distibute points on a sphere using the sunflower"
          * https://stackoverflow.com/a/44164075
          * 
-         * The code below is adapted from the stackoverflow link above.
+         * The code below is adapted and personalized from the stackoverflow link above.
          *  
          */
-
-        
-        holder = new GameObject[num_points];
 
         // This is currently demo code for how the nodes of the social network will be implemented.
         //
@@ -42,13 +42,15 @@ public class SpawnNodes : MonoBehaviour
         //      c) Make a structure for the "links" to be drawn between "friends".
         for (int i = 0; i < num_points; i++)
         {
+            // Set up the angle where each node will be displayed at.
             double arranged_point = i + 0.5f;
-            double phi = Math.Acos(1 - ((2 * arranged_point) / num_points));
+            double phi = Math.Acos(1 - (1.5 * arranged_point / num_points));
             double theta = Math.PI * (1 + Math.Pow(5, 0.5)) * arranged_point;
 
-            float x = (float)(Math.Cos(theta) * Math.Sin(phi));
-            float y = (float)(Math.Sin(theta) * Math.Sin(phi));
-            float z = (float)Math.Cos(phi);
+            // Calculate what it means in real world positions.
+            float x = (float)(Math.Cos(theta) * Math.Sin(phi)/* * (Math.PI/2) */);
+            float y = (float)(Math.Sin(theta) * Math.Sin(phi)/* * (Math.PI / 2) */);
+            float z = (float)(Math.Cos(phi)/* * (Math.PI / 2)*/);
 
             // Basically, increase the radius the more objects there are to display by multiplying
             // the positions values with the square root of the amount of nodes, but do not go below the multiplier 1.
@@ -56,12 +58,11 @@ public class SpawnNodes : MonoBehaviour
                                          (float)(y * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))),
                                          (float)(z * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))));
 
+            // Get the reference center point of the sphere.
             Vector3 centerPointPosition = centerPoint.gameObject.transform.position;
 
+            // Instantiate the object, save the reference to it in an array for later manipulation.
             holder[i] = Instantiate(myPrefab, vector + centerPointPosition, Quaternion.identity) as GameObject;
-
-            
-
 
         }
     }
