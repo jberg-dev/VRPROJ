@@ -2,12 +2,17 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using Newtonsoft.Json;
+using System.IO;
+using System.Text;
 
 public class SpawnNodes : MonoBehaviour
 {
     public int num_points;
     public GameObject myPrefab;
     public GameObject centerPoint;
+    public GameObject empty;
+
     private GameObject[] holder;
     private readonly System.Random r = new System.Random();
 
@@ -18,10 +23,6 @@ public class SpawnNodes : MonoBehaviour
         holder = new GameObject[num_points];
 
         /* 
-         * Referens för att distribuera noder på en yta med "repulsive force" så att alla noder får
-         * så stort utrymme som det är möjligt.
-         * https://pdfs.semanticscholar.org/97a6/7e367e39762baf631f519c00fbfd1d5c009a.pdf
-         * 
          * "The golden spiral method to distibute points on a sphere using the sunflower"
          * https://stackoverflow.com/a/44164075
          * 
@@ -44,7 +45,7 @@ public class SpawnNodes : MonoBehaviour
         {
             // Set up the angle where each node will be displayed at.
             double arranged_point = i + 0.5f;
-            double phi = Math.Acos(1 - (1.5 * arranged_point / num_points));
+            double phi = Math.Acos(1 - (arranged_point / num_points));
             double theta = Math.PI * (1 + Math.Pow(5, 0.5)) * arranged_point;
 
             // Calculate what it means in real world positions.
@@ -54,9 +55,9 @@ public class SpawnNodes : MonoBehaviour
 
             // Basically, increase the radius the more objects there are to display by multiplying
             // the positions values with the square root of the amount of nodes, but do not go below the multiplier 1.
-            Vector3 vector = new Vector3((float)(x * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))),
-                                         (float)(y * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))),
-                                         (float)(z * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))));
+            Vector3 vector = new Vector3((float)(y * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))),
+                                         (float)(z * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))),
+                                         (float)(x * Math.Max(1, Math.Floor(Math.Sqrt(num_points)))));
 
             // Get the reference center point of the sphere.
             Vector3 centerPointPosition = centerPoint.gameObject.transform.position;
@@ -65,19 +66,50 @@ public class SpawnNodes : MonoBehaviour
             holder[i] = Instantiate(myPrefab, vector + centerPointPosition, Quaternion.identity) as GameObject;
 
         }
+
+        string jsontext = File.ReadAllText(@"C:\Users\Bergerking\VRPROJ\Assets\Scripts\GenData.json", Encoding.UTF8);
+        var result = JsonConvert.DeserializeObject <List<VRPROJ.Datastructure.SocialNetworkNode>>(jsontext);
+
+        foreach(object o in result)
+        {
+            Debug.Log(o.ToString());
+        }
+        
+
     }
+
+    Vector3 zero_pos = new Vector3(0, 0, 0);
 
     // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown("space"))
         { 
-            for (int i = 0; i < num_points; i++)
+            //for (int i = 0; i < num_points; i++)
+            //{
+            //    Material mat = holder[i].GetComponent<Renderer>().material;
+            //    Color color = mat.color;
+            //    color.a = (float)r.NextDouble();
+            //    mat.color = color;
+            //}
+
+            for(int i = 0; i < 10; i++)
             {
-                Material mat = holder[i].GetComponent<Renderer>().material;
-                Color color = mat.color;
-                color.a = (float)r.NextDouble();
-                mat.color = color;
+                GameObject from = holder[r.Next(0, num_points)];
+                GameObject unto = holder[r.Next(0, num_points)];
+                GameObject emptyPos = Instantiate(empty, zero_pos, Quaternion.identity);
+
+                LineRenderer lr = emptyPos.AddComponent<LineRenderer>();
+                lr.material = new Material(Shader.Find("Sprites/Default"));
+                lr.positionCount = 2;
+                lr.widthMultiplier = 0.2f;
+
+                Vector3 pos1 = from.gameObject.transform.position;
+                Vector3 pos2 = unto.gameObject.transform.position;
+
+                Vector3[] positions = { pos1, pos2 };
+
+                lr.SetPositions(positions);
             }
         }
     }
