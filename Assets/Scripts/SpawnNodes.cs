@@ -19,8 +19,12 @@ public class SpawnNodes : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        return;
 
         holder = new GameObject[num_points];
+
+        string jsontext = File.ReadAllText(@"C:\Users\Bergerking\VRPROJ\Assets\Scripts\GenData.json", Encoding.UTF8);
+        var result = JsonConvert.DeserializeObject<List<VRPROJ.Datastructure.SocialNetworkNode>>(jsontext);
 
         /* 
          * "The golden spiral method to distibute points on a sphere using the sunflower"
@@ -67,13 +71,12 @@ public class SpawnNodes : MonoBehaviour
 
         }
 
-        string jsontext = File.ReadAllText(@"C:\Users\Bergerking\VRPROJ\Assets\Scripts\GenData.json", Encoding.UTF8);
-        var result = JsonConvert.DeserializeObject <List<VRPROJ.Datastructure.SocialNetworkNode>>(jsontext);
 
-        foreach(object o in result)
-        {
-            Debug.Log(o.ToString());
-        }
+
+        //foreach(object o in result)
+        //{
+        //    Debug.Log(o.ToString());
+        //}
         
 
     }
@@ -83,8 +86,10 @@ public class SpawnNodes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown("space"))
-        { 
+        if (Input.GetKeyDown("z"))
+        {
+            return;
+
             //for (int i = 0; i < num_points; i++)
             //{
             //    Material mat = holder[i].GetComponent<Renderer>().material;

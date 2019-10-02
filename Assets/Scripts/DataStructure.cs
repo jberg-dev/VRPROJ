@@ -1,14 +1,26 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using UnityEngine;
 
-
+/// <summary>
+/// A Collection of what is expected to manage all the data about the nodes and their connections in the network.
+/// </summary>
 namespace VRPROJ.Datastructure
 {
+
+    /// <summary>
+    /// Manager Class that handles initialization, and later calls for filtering and/or redrawing.
+    /// </summary>
     public class DataStructure : MonoBehaviour
     {
 
         public static bool debugging = true;
+        private static List<SocialNetworkNode> nodes;
+        public GameObject centerPoint;
+        public GameObject myPrefab;
 
         /*
          * Planned class structure;
@@ -34,7 +46,15 @@ namespace VRPROJ.Datastructure
             }
             else
             {
-                // SET UP DEFAULT TESTING SET HERE.
+                string jsontext = File.ReadAllText(@"C:\Users\Bergerking\VRPROJ\Assets\Scripts\GenData.json", Encoding.UTF8);
+                //string jsontext = File.ReadAllText(@"C:\Users\Bergerking\VRPROJ\Assets\Scripts\SimplifiedGenData.json", Encoding.UTF8);
+                nodes = JsonConvert.DeserializeObject<List<VRPROJ.Datastructure.SocialNetworkNode>>(jsontext);
+            }
+
+            if(!SpawnNodes())
+            {
+                // TODO
+                // Display error popup here.
             }
         }
 
@@ -42,6 +62,47 @@ namespace VRPROJ.Datastructure
         void Update()
         {
 
+        }
+
+        bool SpawnNodes()
+        {
+            if(nodes == null || nodes.Count == 0)
+            {
+                Debug.LogError("CRITICAL ERROR: NO NODES LOADED, RETURNING FALSE.");
+                return false;
+            }
+
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                // Set up the angle where each node will be displayed at.
+                double arranged_point = i + 0.5f;
+                double phi = Math.Acos(1 - (arranged_point / nodes.Count));
+                double theta = Math.PI * (1 + Math.Pow(5, 0.5)) * arranged_point;
+
+                // Calculate what it means in real world positions.
+                float x = (float)(Math.Cos(theta) * Math.Sin(phi));
+                float y = (float)(Math.Sin(theta) * Math.Sin(phi));
+                float z = (float)(Math.Cos(phi));
+
+                // Basically, increase the radius the more objects there are to display by multiplying
+                // the positions values with the square root of the amount of nodes, but do not go below the multiplier 1.
+                Vector3 vector = new Vector3((float)(y * Math.Max(2, Math.Floor(Math.Sqrt(nodes.Count)))),
+                                             (float)(z * Math.Max(2, Math.Floor(Math.Sqrt(nodes.Count)))),
+                                             (float)(x * Math.Max(2, Math.Floor(Math.Sqrt(nodes.Count)))));
+
+                // Get the reference center point of the sphere.
+                Vector3 centerPointPosition = centerPoint.gameObject.transform.position;
+
+                // Instantiate the object and catch it for storage.
+                GameObject justMade = Instantiate(myPrefab, vector + centerPointPosition, Quaternion.identity) as GameObject;
+
+                DataManager manager = justMade.GetComponent<DataManager>();
+                manager.SaveNodeData(nodes[i]);
+                nodes[i].SaveNode(justMade);
+
+            }
+
+            return true;
         }
     }
 
@@ -213,7 +274,7 @@ namespace VRPROJ.Datastructure
 
         }
 
-        public bool instantiateNode(GameObject gameObject)
+        public bool SaveNode(GameObject gameObject)
         {
             if(game_node == null)
             {
