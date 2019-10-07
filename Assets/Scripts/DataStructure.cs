@@ -375,6 +375,14 @@ namespace VRPROJ.Datastructure
             }
         }
 
+        public string NumberFriends
+        {
+            get
+            {
+                return friendRelations.Count.ToString();
+            }
+        }
+
         public SocialNetworkNode()
         {
             friendRelations = new Dictionary<SocialNetworkNode, LineRenderer>();
