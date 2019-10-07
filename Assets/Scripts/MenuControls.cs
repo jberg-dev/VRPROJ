@@ -7,13 +7,12 @@ using VRPROJ.Datastructure;
 public class MenuControls : MonoBehaviour
 {
 
-#pragma warning disable CA1051 // Do not declare visible instance fields
     public GameObject ButtonMenu;
     public GameObject InformationMenu;
     public GameObject ErrorDialog;
-#pragma warning restore CA1051 // Do not declare visible instance fields
 
-    private Text fullName = null, 
+    private Text 
+        fullName = null, 
         company = null, 
         email = null, 
         phone = null, 
@@ -31,6 +30,7 @@ public class MenuControls : MonoBehaviour
     
     void InitializeTextFields()
     {
+        bool previousState = InformationMenu.activeSelf;
         InformationMenu.SetActive(true);
 
         GameObject fullNameObj = GameObject.FindGameObjectWithTag("IM_NAME");
@@ -60,7 +60,7 @@ public class MenuControls : MonoBehaviour
         registered = textFields[5];
         noFriends = textFields[6];
 
-        InformationMenu.SetActive(false);
+        InformationMenu.SetActive(previousState);
 
     }
 

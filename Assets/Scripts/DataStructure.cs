@@ -144,9 +144,65 @@ namespace VRPROJ.Datastructure
 
             }
 
+            // TODO 
+            // REMOVE THE CODE BELOW AND MAKE THE PROPER IMPLEMENTATION!
+            GenerateFakeFriends();
+
+
             return true;
         }
+
+        /// <summary>
+        /// Temporary testing structure to verify friend relation functionality.
+        /// </summary>
+        void GenerateFakeFriends()
+        {
+            // Local instance for consistent results.
+            System.Random localRandom = new System.Random(1);
+            for(int count = 0; count < nodes.Count; count++)
+            {
+                SocialNetworkNode currentActive = nodes[count];
+                int randomAmountOfFriends = localRandom.Next(0, 15); //(int)Math.Ceiling(nodes.Count / 5d));
+                for(int inner = 0; inner < randomAmountOfFriends; inner++)
+                {
+                    // Get a random index of the friend to add.
+                    int randomFriend = localRandom.Next(0, nodes.Count);
+                    
+                    // Not adding youself as a friend.
+                    if (randomFriend == count)
+                        continue;
+                    
+                    // Fish out the friend from the node list.
+                    SocialNetworkNode selected = nodes[randomFriend];
+
+                    // Make sure that we do not already have this friend added.
+                    if(!currentActive.IsFriendPresent(selected))
+                    {
+                        GameObject emptyPos = Instantiate(empty, zero_pos, Quaternion.identity);
+
+                        LineRenderer lr = emptyPos.AddComponent<LineRenderer>();
+                        lr.material = new Material(Shader.Find("Sprites/Default"));
+                        lr.positionCount = 2;
+                        lr.widthMultiplier = 0.1f;
+
+                        Vector3 pos1 = selected.GetNode().transform.position;
+                        Vector3 pos2 = currentActive.GetNode().transform.position;
+
+                        Vector3[] positions = { pos1, pos2 };
+
+                        lr.SetPositions(positions);
+
+                        currentActive.AddFriend(selected, lr);
+                        selected.AddFriend(currentActive, lr);
+                    }
+                    else
+                        continue;
+                    
+                }
+            }
+        }
     }
+
 
     public class SocialNetworkNode
     {
@@ -164,7 +220,7 @@ namespace VRPROJ.Datastructure
         private string m_address    = default_name;
         private string m_registered = default_name;
 
-
+        private volatile Dictionary<SocialNetworkNode, LineRenderer> friendRelations;
         private volatile GameObject game_node = null;
 
         [JsonProperty("_id")]
@@ -321,7 +377,7 @@ namespace VRPROJ.Datastructure
 
         public SocialNetworkNode()
         {
-
+            friendRelations = new Dictionary<SocialNetworkNode, LineRenderer>();
         }
 
         public bool SaveNode(GameObject gameObject)
@@ -344,6 +400,35 @@ namespace VRPROJ.Datastructure
             }
 
             return false;
+        }
+
+        public LineRenderer GetLineForFriend(SocialNetworkNode other)
+        {
+            if (friendRelations != null && friendRelations.TryGetValue(other, out LineRenderer lr))
+                return lr;
+            else
+            {
+                if (DataStructure.debugging && friendRelations == null)
+                    Debug.LogError("FriendRelations were NULL!");
+                return null;
+            }
+                
+        }
+
+        public bool AddFriend(SocialNetworkNode friend, LineRenderer line)
+        {
+            if(!IsFriendPresent(friend))
+            {
+                friendRelations.Add(friend, line);
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool IsFriendPresent(SocialNetworkNode friend)
+        {
+            return friendRelations.ContainsKey(friend);
         }
 
         public GameObject GetNode()
