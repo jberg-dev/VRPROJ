@@ -15,10 +15,6 @@ public class DataManager : MonoBehaviour
 
     public SocialNetworkNode nodeData;
 
-    // Debug fields, remove for live product
-    public string name;
-    public string mail;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -36,10 +32,7 @@ public class DataManager : MonoBehaviour
         if(in_node != null)
         {
             this.nodeData = in_node;
-            name = String.Format("{0} {1}", in_node.FirstName, in_node.LastName);
-            mail = in_node.Email;
-        }
-            
+        }            
         else
             Debug.LogError("in_node was null!");
     }

@@ -7,10 +7,14 @@ public class CameraSelection : MonoBehaviour
 
     public GameObject debugRig;
     public GameObject liveRig;
+    public GameObject marker;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
+        // This is a marker for the scene building, not live rendering.
+        marker.SetActive(false);
+        
 
 #if UNITY_EDITOR
         debugRig.SetActive(true);

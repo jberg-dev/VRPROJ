@@ -58,19 +58,56 @@ namespace VRPROJ.Datastructure
             }
         }
 
+        Vector3 zero_pos = new Vector3(0, 0, 0);
+        System.Random r = new System.Random();
+        public GameObject empty;
+
         // Update is called once per frame
         void Update()
         {
+            if (Input.GetKeyDown(KeyCode.Z))
+            { 
+                for (int i = 0; i < 10; i++)
+                {
+                    GameObject from = nodes[r.Next(0, nodes.Count)].GetNode();
+                    GameObject unto = nodes[r.Next(0, nodes.Count)].GetNode();
+                    GameObject emptyPos = Instantiate(empty, zero_pos, Quaternion.identity);
 
+                    LineRenderer lr = emptyPos.AddComponent<LineRenderer>();
+                    lr.material = new Material(Shader.Find("Sprites/Default"));
+                    lr.positionCount = 2;
+                    lr.widthMultiplier = 0.1f;
+
+                    Vector3 pos1 = from.gameObject.transform.position;
+                    Vector3 pos2 = unto.gameObject.transform.position;
+
+                    Vector3[] positions = { pos1, pos2 };
+
+                    lr.SetPositions(positions);
+                }
+            }
         }
 
+        /// <summary>
+        /// Spawn nodes to the virtual canvas based on the data that has been passed in to the nodes data
+        /// structure in the previous step.
+        /// </summary>
+        /// <returns>True if any kind of instantiation succeeded, false if errors.</returns>
         bool SpawnNodes()
         {
+            // Error check node count so we don't crash the application
             if(nodes == null || nodes.Count == 0)
             {
                 Debug.LogError("CRITICAL ERROR: NO NODES LOADED, RETURNING FALSE.");
                 return false;
             }
+
+            /*
+             * "The golden spiral method to distibute points on a sphere using the sunflower"
+             * https://stackoverflow.com/a/44164075
+             * 
+             * The code below is adapted and personalized from the stackoverflow link above.
+             */
 
             for (int i = 0; i < nodes.Count; i++)
             {
@@ -86,9 +123,9 @@ namespace VRPROJ.Datastructure
 
                 // Basically, increase the radius the more objects there are to display by multiplying
                 // the positions values with the square root of the amount of nodes, but do not go below the multiplier 1.
-                Vector3 vector = new Vector3((float)(y * Math.Max(2, Math.Floor(Math.Sqrt(nodes.Count)))),
-                                             (float)(z * Math.Max(2, Math.Floor(Math.Sqrt(nodes.Count)))),
-                                             (float)(x * Math.Max(2, Math.Floor(Math.Sqrt(nodes.Count)))));
+                Vector3 vector = new Vector3((float)(y * Math.Max(3, Math.Floor(Math.Sqrt(nodes.Count)))),
+                                             (float)(z * Math.Max(3, Math.Floor(Math.Sqrt(nodes.Count)))),
+                                             (float)(x * Math.Max(3, Math.Floor(Math.Sqrt(nodes.Count)))));
 
                 // Get the reference center point of the sphere.
                 Vector3 centerPointPosition = centerPoint.gameObject.transform.position;
@@ -96,8 +133,13 @@ namespace VRPROJ.Datastructure
                 // Instantiate the object and catch it for storage.
                 GameObject justMade = Instantiate(myPrefab, vector + centerPointPosition, Quaternion.identity) as GameObject;
 
+                // Get the Data Manager entity from the spawned node for manipulation
                 DataManager manager = justMade.GetComponent<DataManager>();
+
+                // Link the data of the node with the manager
                 manager.SaveNodeData(nodes[i]);
+
+                // Link the node with the data of the node
                 nodes[i].SaveNode(justMade);
 
             }
@@ -269,6 +311,14 @@ namespace VRPROJ.Datastructure
             }
         }
 
+        public string FullName
+        {
+            get
+            {
+                return m_firstName + " " + m_lastName;
+            }
+        }
+
         public SocialNetworkNode()
         {
 
@@ -296,11 +346,54 @@ namespace VRPROJ.Datastructure
             return false;
         }
 
-        public bool isInstantiated()
+        public GameObject GetNode()
         {
-            return game_node == null;
+            if (game_node != null)
+                return game_node;
+            else
+            {
+                Debug.LogError("Attempting to get a null game node for + " + FullName);
+                return null;
+            }
         }
 
+        /// <summary>
+        /// Used for re-rendering nodes in other configurations.
+        /// </summary>
+        public void ResetNode()
+        {
+            this.game_node = null;
+            Debug.Log("RESETTING NODE FOR: " + FullName);
+        }
+
+        /// <summary>
+        /// Shorthand to make sure that tha node is able to be worked on.
+        /// </summary>
+        /// <returns></returns>
+        public bool isInstantiated()
+        {
+            return game_node != null;
+        }
+
+        public void PutToDisplay()
+        {
+            GameObject controlDummy = GameObject.FindGameObjectWithTag("InformationMenu");
+            MenuControls menuController;
+
+            if (controlDummy.TryGetComponent<MenuControls>(out menuController))
+            {
+                menuController.ResetMenus();
+            }
+            else
+            {
+                Debug.LogWarning("Failed to locate the menu control");
+            }
+        }
+
+        /// <summary>
+        /// Custom ToString() to give a short overview of what the data represents.
+        /// </summary>
+        /// <returns>A short introduction.</returns>
         public override string ToString()
         {
             return String.Format("[{0} {1}] - {2} | {3}", m_firstName, m_lastName, m_company, m_email);

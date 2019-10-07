@@ -5,6 +5,15 @@ TagManager:
   serializedVersion: 2
   tags:
   - Center
+  - MenuControl
+  - InformationMenu
+  - IM_NAME
+  - IM_COMPANY
+  - IM_EMAIL
+  - IM_PHONE
+  - IM_ADDRESS
+  - IM_REGISTERED
+  - IM_NOFRIENDS
   layers:
   - Default
   - TransparentFX
