@@ -14,6 +14,9 @@ TagManager:
   - IM_ADDRESS
   - IM_REGISTERED
   - IM_NOFRIENDS
+  - RightController
+  - LeftController
+  - MAXFRIENDS
   layers:
   - Default
   - TransparentFX

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Valve.VR;
 
 public class RayCastingManager : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class RayCastingManager : MonoBehaviour
     public GameObject textObject;
     private Text hudDisplayText;
     private MenuControls controlMenu;
+    private SteamVR_Input_Sources leftController = SteamVR_Input_Sources.LeftHand;
+    private SteamVR_Input_Sources rightController = SteamVR_Input_Sources.RightHand;
 
     // Start is called before the first frame update
     void Start()
@@ -26,6 +29,19 @@ public class RayCastingManager : MonoBehaviour
         }
         else
             Debug.LogError("FAILED TO LOCATE MENUS MENU CONTROLLER");
+
+        SteamVR_Actions.default_GrabPinch.AddOnStateDownListener(TriggerDown, rightController);
+        SteamVR_Actions.default_GrabPinch.AddOnStateUpListener(TriggerUp, rightController);
+    }
+
+    void TriggerDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromController)
+    {
+        rightControllerTriggerDown = true;
+    }
+
+    void TriggerUp(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromController)
+    {
+        rightControllerTriggerUp = true;
     }
 
     // Keep the frequent use objects as class variables to prevent
@@ -34,6 +50,8 @@ public class RayCastingManager : MonoBehaviour
     private GameObject potential_hit = null;
     private DataManager potential_manager = null;
     private string nameOfHovered = string.Empty;
+    private bool rightControllerTriggerDown = false;
+    private bool rightControllerTriggerUp = false;
 
     // Update is called once per frame
     void Update()
@@ -44,6 +62,9 @@ public class RayCastingManager : MonoBehaviour
 
         if (renderLaserLine)
         {
+            // TODO
+            // UPDATE SO IT CAN HIT OTHER THINGS LIKE MENUS TOO.
+
             if (DoRaycast(out potential_hit))
             {
                 if (potential_hit.TryGetComponent<DataManager>(out potential_manager))
@@ -54,15 +75,13 @@ public class RayCastingManager : MonoBehaviour
         }
 
 
-#if UNITY_EDITOR
-
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) || rightControllerTriggerDown)
         {
             renderLaserLine = true;
             lr.enabled = true;
+            rightControllerTriggerDown = false;
         }
-
-        else if (Input.GetMouseButtonUp(0))
+        else if (Input.GetMouseButtonUp(0) || rightControllerTriggerUp)
         {
             if (potential_manager != null)
             {
@@ -74,24 +93,8 @@ public class RayCastingManager : MonoBehaviour
 
             renderLaserLine = false;
             lr.enabled = false;
+            rightControllerTriggerUp = false;
         }
-
-
-
-
-        // TODO
-        // BELOW NEEDS REWORK TO PROPERLY WORK WITH THE HANDHELDS!
-#else
-        if(Input.GetKeyDown("fire1"))
-        {
-            renderLaserLine = true;
-            lr.enabled = true;
-        }
-        else if (Input.GetKeyUp("fire1"))
-        {
-            DoRaycast();
-        }
-#endif
 
         // Update the laser lines position as long as the line is to be displayed.
         if (renderLaserLine)
@@ -106,11 +109,12 @@ public class RayCastingManager : MonoBehaviour
             target = Camera.main.transform.forward * 99f;
 
 #else
-
-            // TODO
-            // INSERT ORIGIN/TARGET FOR HANDHELDS HERE
+            origin = GameObject.FindGameObjectWithTag("RightController").transform.forward;
+            target = GameObject.FindGameObjectWithTag("RightController").transform.forward * Mathf.Infinity;
 
 #endif
+
+
             lr.SetPosition(0, origin);
             lr.SetPosition(1, target);
         }

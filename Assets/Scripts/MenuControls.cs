@@ -10,6 +10,8 @@ public class MenuControls : MonoBehaviour
     public GameObject ButtonMenu;
     public GameObject InformationMenu;
     public GameObject ErrorDialog;
+    public GameObject minFriendsSlider;
+    public GameObject maxFriendsSlider;
 
     // Text fields of the InformationMenu
     private Text 
@@ -124,12 +126,12 @@ public class MenuControls : MonoBehaviour
             InformationMenu.SetActive(true);
 
         // Grab the data from the node and set the displaying text fields;
-        fullName.text = snn.FullName;
-        company.text = snn.Company;
-        email.text = snn.Email;
-        phone.text = snn.Phone;
-        address.text = snn.Address;
-        registered.text = snn.Registered;
+        fullName.text = "Name: " + snn.FullName;
+        company.text = "Company: " + snn.Company;
+        email.text = "Email: " + snn.Email;
+        phone.text = "Phone: " + snn.Phone;
+        address.text = "Address: " + snn.Address;
+        registered.text = "Joined: " + snn.Registered;
         noFriends.text = "Number of friends: " + snn.NumberFriends;
     }
 

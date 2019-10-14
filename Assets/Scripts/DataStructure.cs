@@ -222,6 +222,7 @@ namespace VRPROJ.Datastructure
 
         private volatile Dictionary<SocialNetworkNode, LineRenderer> friendRelations;
         private volatile GameObject game_node = null;
+        private volatile bool m_visible = true;
 
         [JsonProperty("_id")]
         public string ID
@@ -380,6 +381,33 @@ namespace VRPROJ.Datastructure
             get
             {
                 return friendRelations.Count.ToString();
+            }
+        }
+
+        public int CountNumberFriends
+        {
+            get
+            {
+                return friendRelations.Count;
+            }
+        }
+
+        public bool Visible
+        {
+            get
+            {
+                return m_visible;
+            }
+            set
+            {
+                if(game_node != null)
+                {
+                    m_visible = value;
+                }
+                else
+                {
+                    Debug.LogWarning("Attempting to set visibility on null game node SNN for " + FullName);
+                }
             }
         }
 
