@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// A Collection of what is expected to manage all the data about the nodes and their connections in the network.
@@ -22,6 +23,21 @@ namespace VRPROJ.Datastructure
         public GameObject centerPoint;
         public GameObject myPrefab;
 
+        static public int MINFRIENDS
+        {
+            private set; get;
+        }
+        static public int MAXFRIENDS
+        {
+            private set; get;
+        }
+
+        static public bool INITIALIZED
+        {
+            private set; get;
+        }
+
+
         /*
          * Planned class structure;
          * 
@@ -35,11 +51,15 @@ namespace VRPROJ.Datastructure
          *    in a hashmap for quick access and further conditional processing.
          */
 
-
+        void Awake()
+        {
+            INITIALIZED = false;
+        }
 
         // Start is called before the first frame update
         void Start()
         {
+            
             if(!debugging)
             {
                 // CALL FILE MANAGER HERE FOR SELECTION!
@@ -56,6 +76,9 @@ namespace VRPROJ.Datastructure
                 // TODO
                 // Display error popup here.
             }
+
+            SetUpPublicData();
+            INITIALIZED = true;
         }
 
         Vector3 zero_pos = new Vector3(0, 0, 0);
@@ -65,6 +88,7 @@ namespace VRPROJ.Datastructure
         // Update is called once per frame
         void Update()
         {
+            // DEBUG CODE that should be gotten rid of.
             if (Input.GetKeyDown(KeyCode.Z))
             { 
                 for (int i = 0; i < 10; i++)
@@ -84,6 +108,31 @@ namespace VRPROJ.Datastructure
                     Vector3[] positions = { pos1, pos2 };
 
                     lr.SetPositions(positions);
+                }
+            }
+        }
+
+
+        void SetUpPublicData()
+        {
+            if (nodes.Count == 0)
+            {
+                Debug.LogError("NODES NOT INITIALIZED, NOT SETTING UP FILTER MENU");
+                return;
+            }
+
+            MINFRIENDS = nodes[0].CountNumberFriends;
+            MAXFRIENDS = nodes[0].CountNumberFriends;
+
+            foreach(SocialNetworkNode n in nodes)
+            {
+                if(n.CountNumberFriends < MINFRIENDS)
+                {
+                    MINFRIENDS = n.CountNumberFriends;
+                }
+                if(n.CountNumberFriends > MAXFRIENDS)
+                {
+                    MAXFRIENDS = n.CountNumberFriends;
                 }
             }
         }
@@ -224,6 +273,7 @@ namespace VRPROJ.Datastructure
         private volatile GameObject game_node = null;
         private volatile bool m_visible = true;
 
+        #region properties
         [JsonProperty("_id")]
         public string ID
         {
@@ -410,6 +460,7 @@ namespace VRPROJ.Datastructure
                 }
             }
         }
+#endregion
 
         public SocialNetworkNode()
         {

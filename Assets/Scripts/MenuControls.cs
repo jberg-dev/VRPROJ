@@ -28,7 +28,13 @@ public class MenuControls : MonoBehaviour
     /// </summary>
     void Awake()
     {
-        ResetMenus();
+        ButtonMenu.SetActive(true);
+        InformationMenu.SetActive(true);
+    }
+
+    void Start()
+    {
+        //ResetMenus();
     }
     
     /// <summary>

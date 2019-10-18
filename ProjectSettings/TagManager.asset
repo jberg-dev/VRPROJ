@@ -17,6 +17,9 @@ TagManager:
   - RightController
   - LeftController
   - MAXFRIENDS
+  - MINFRIENDS
+  - maxCurrentSelection
+  - minCurrentSelection
   layers:
   - Default
   - TransparentFX
