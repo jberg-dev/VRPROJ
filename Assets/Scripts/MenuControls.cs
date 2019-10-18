@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using VRPROJ.Datastructure;
+using Valve.VR;
 
 public class MenuControls : MonoBehaviour
 {
@@ -10,8 +11,7 @@ public class MenuControls : MonoBehaviour
     public GameObject ButtonMenu;
     public GameObject InformationMenu;
     public GameObject ErrorDialog;
-    public GameObject minFriendsSlider;
-    public GameObject maxFriendsSlider;
+    SteamVR_Action_Boolean menuPress;
 
     // Text fields of the InformationMenu
     private Text 
@@ -23,24 +23,31 @@ public class MenuControls : MonoBehaviour
         registered = null, 
         noFriends = null;
 
+    private bool menuPressed = false;
+
     /// <summary>
     /// Make sure there are no Menus visible on the start of the application.
     /// </summary>
     void Awake()
     {
         ButtonMenu.SetActive(true);
-        InformationMenu.SetActive(true);
     }
 
     void Start()
     {
         //ResetMenus();
+        menuPress.AddOnStateDownListener(TriggerMenuDown, SteamVR_Input_Sources.Any);
     }
-    
-    /// <summary>
-    /// Lazy initializer for the text fields of the Information Menu.
-    /// </summary>
-    void InitializeInformationMenuTextFields()
+
+    void TriggerMenuDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromController)
+    {
+        menuPressed = true;
+    }
+
+        /// <summary>
+        /// Lazy initializer for the text fields of the Information Menu.
+        /// </summary>
+        void InitializeInformationMenuTextFields()
     {
         // Save the current state of active.
         bool previousState = InformationMenu.activeSelf;
@@ -101,12 +108,11 @@ public class MenuControls : MonoBehaviour
     /// </summary>
     void Update()
     {
-        // TODO
-        // Add keycode for Vive controllers!
-        if(Input.GetKeyDown(KeyCode.H))
+        if(Input.GetKeyDown(KeyCode.H) || menuPressed)
         {
             // Make it a toggle so you press it again to turn it on and off.
             ButtonMenu.SetActive(!ButtonMenu.activeSelf);
+            menuPressed = false;
         }
     }
 

@@ -250,6 +250,30 @@ namespace VRPROJ.Datastructure
                 }
             }
         }
+    
+        public void SetRangeOfFriendsVisible(int minimum, int maximum)
+        {
+            if(minimum < MINFRIENDS || maximum > MAXFRIENDS)
+            {
+                Debug.LogError(String.Format("ERROR! min: {0}, minfriends: {1} | max: {2}, maxfriends: {3}", 
+                    minimum, MINFRIENDS, maximum, MAXFRIENDS));
+                return;
+            }
+
+            foreach(SocialNetworkNode snn in nodes)
+            {
+                if (snn.CountNumberFriends < minimum || snn.CountNumberFriends > maximum)
+                    snn.Visible = false;
+                else
+                    snn.Visible = true;
+            }
+
+            foreach(SocialNetworkNode active in nodes)
+            {
+                if (active.Visible)
+                    active.AssertConnectionsVisible();
+            }
+        }
     }
 
 
@@ -453,6 +477,16 @@ namespace VRPROJ.Datastructure
                 if(game_node != null)
                 {
                     m_visible = value;
+
+                    if (value)
+                        SetNodeAlpha(1.0f);
+                    else
+                        SetNodeAlpha(0.3f);
+
+                    foreach(LineRenderer lr in friendRelations.Values)
+                    {
+                        lr.enabled = value;
+                    }
                 }
                 else
                 {
@@ -465,6 +499,17 @@ namespace VRPROJ.Datastructure
         public SocialNetworkNode()
         {
             friendRelations = new Dictionary<SocialNetworkNode, LineRenderer>();
+        }
+
+        void SetNodeAlpha(float alpha)
+        {
+            if(game_node != null && alpha >= 0 && alpha <= 1.0f)
+            {
+                Material mat = game_node.gameObject.GetComponent<Renderer>().material;
+                Color color = mat.color;
+                color.a = alpha;
+                mat.color = color;
+            }
         }
 
         public bool SaveNode(GameObject gameObject)
@@ -487,6 +532,17 @@ namespace VRPROJ.Datastructure
             }
 
             return false;
+        }
+
+        public void AssertConnectionsVisible()
+        {
+            if(Visible)
+            {
+                foreach (LineRenderer show in friendRelations.Values)
+                {
+                    show.enabled = true;
+                }
+            }
         }
 
         public LineRenderer GetLineForFriend(SocialNetworkNode other)

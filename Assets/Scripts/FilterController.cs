@@ -11,6 +11,9 @@ public class FilterController : MonoBehaviour
     public GameObject minFriendsSlider;
     private Text minSelection;
     private Text maxSelection;
+    private Slider minimum;
+    private Slider maximum;
+    private DataStructure ds;
 
     public bool INITIALIZED
     {
@@ -57,6 +60,7 @@ public class FilterController : MonoBehaviour
             minSlider.maxValue = DataStructure.MAXFRIENDS;
             minSlider.minValue = DataStructure.MINFRIENDS;
             minSlider.value = minSlider.minValue;
+            minimum = minSlider;
         }
 
         if(maxFriendsSlider.TryGetComponent<Slider>(out Slider maxSlider))
@@ -64,6 +68,58 @@ public class FilterController : MonoBehaviour
             maxSlider.maxValue = DataStructure.MAXFRIENDS;
             maxSlider.minValue = DataStructure.MINFRIENDS;
             maxSlider.value = maxSlider.maxValue;
+            maximum = maxSlider;
         }
+
+        GameObject minCurr = GameObject.FindGameObjectWithTag("minCurrentSelection");
+        GameObject maxCurr = GameObject.FindGameObjectWithTag("maxCurrentSelection");
+
+        if(minCurr.TryGetComponent<Text>(out Text minCurrText))
+        {
+            minCurrText.text = minimum.value.ToString();
+            minSelection = minCurrText;
+        }
+
+        if (maxCurr.TryGetComponent<Text>(out Text maxCurrText))
+        {
+            maxCurrText.text = maximum.value.ToString();
+            maxSelection = maxCurrText;
+        }
+
+        GameObject datastructure = GameObject.FindGameObjectWithTag("DataStructure");
+        
+        if(datastructure.TryGetComponent<DataStructure>(out DataStructure dataaa))
+        {
+            ds = dataaa;
+        }
+        else
+        {
+            Debug.LogError("Failed to get DataStructure");
+        }
+
+    }
+
+    public void minSliderChanged()
+    {
+        if (!INITIALIZED)
+            return;
+
+        if (minimum.value > maximum.value)
+            minimum.value = maximum.value;
+
+        minSelection.text = minimum.value.ToString();
+        ds.SetRangeOfFriendsVisible((int)minimum.value, (int)maximum.value);
+    }
+
+    public void maxSliderChanged()
+    {
+        if (!INITIALIZED)
+            return;
+
+        if (maximum.value < minimum.value)
+            maximum.value = minimum.value;
+
+        maxSelection.text = maximum.value.ToString();
+        ds.SetRangeOfFriendsVisible((int)minimum.value, (int)maximum.value);
     }
 }
