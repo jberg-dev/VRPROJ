@@ -12,6 +12,8 @@ public class MenuControls : MonoBehaviour
     public GameObject FilterMenu;
     public GameObject InformationMenu;
     public GameObject FileSelectionMenu;
+
+    private DataStructure data;
     SteamVR_Action_Boolean menuPress;
 
     // Text fields of the InformationMenu
@@ -31,12 +33,12 @@ public class MenuControls : MonoBehaviour
     /// </summary>
     void Awake()
     {
-        FilterMenu.SetActive(true);
+
     }
 
     void Start()
     {
-        //ResetMenus();
+        ResetMenus();
         menuPress.AddOnStateDownListener(TriggerMenuDown, SteamVR_Input_Sources.Any);
     }
 
@@ -45,10 +47,10 @@ public class MenuControls : MonoBehaviour
         menuPressed = true;
     }
 
-        /// <summary>
-        /// Lazy initializer for the text fields of the Information Menu.
-        /// </summary>
-        void InitializeInformationMenuTextFields()
+    /// <summary>
+    /// Lazy initializer for the text fields of the Information Menu.
+    /// </summary>
+    void InitializeInformationMenuTextFields()
     {
         // Save the current state of active.
         bool previousState = InformationMenu.activeSelf;
@@ -138,6 +140,9 @@ public class MenuControls : MonoBehaviour
         else
             InformationMenu.SetActive(true);
 
+        data.CURRENTSELECTED = snn;
+        data.TriggerFriendLineRecalc();
+
         // Grab the data from the node and set the displaying text fields;
         fullName.text = "Name: " + snn.FullName;
         company.text = "Company: " + snn.Company;
@@ -155,12 +160,42 @@ public class MenuControls : MonoBehaviour
 
     public void ToggleMainMenu()
     {
-        MainMenu.SetActive(!MainMenu.activeSelf);
+        MainMenu.SetActive(!MainMenu.activeSelf);            
     }
 
     public void ToggleFileSelectionMenu()
     {
         FileSelectionMenu.SetActive(!FileSelectionMenu.activeSelf);
+    }
+
+    public void SelectFile(int file)
+    {
+        if (data == null)
+            InitializeData();
+        
+        data.LoadFileToNodes(Application.dataPath + "/" + file.ToString() + ".json");
+    }
+
+    public void SetCondition(int condition)
+    {
+        if (data == null)
+            InitializeData();
+
+        data.SetConditions(condition);
+    }
+
+    private void InitializeData()
+    {
+        GameObject go = GameObject.FindGameObjectWithTag("DataStructure");
+        if (go.TryGetComponent<DataStructure>(out DataStructure attempt))
+        {
+            data = attempt;
+            Debug.Log("Loaded datastructure successfully");
+        }
+        else
+        {
+            Debug.LogError("Failed to load the datastructure.");
+        }
     }
 
     /// <summary>

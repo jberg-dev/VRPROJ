@@ -23,6 +23,12 @@ namespace VRPROJ.Datastructure
         private static List<SocialNetworkNode> nodes;
         public GameObject centerPoint;
         public GameObject myPrefab;
+        private int currMin, currMax, currCondition;
+        
+        public SocialNetworkNode CURRENTSELECTED
+        {
+            set; get;
+        }
 
         static public int MINFRIENDS
         {
@@ -54,6 +60,7 @@ namespace VRPROJ.Datastructure
 
         void Awake()
         {
+            currCondition = 0;
             INITIALIZED = false;
         }
 
@@ -73,10 +80,21 @@ namespace VRPROJ.Datastructure
             if(File.Exists(path))
             {
                 if (nodes != null && nodes.Count != 0)
+                {
+                    // Clear out the current data.
                     ResetNodes();
 
+                    // Need to set this to false to re-init the filter menu.
+                    FilterController.INITIALIZED = false;
+                }
+
+                // Read in from file.
                 string jsontext = File.ReadAllText(path, Encoding.UTF8);
+
+                // Parse the data to the provided structures.
                 nodes = JsonConvert.DeserializeObject<List<SocialNetworkNode>>(jsontext);
+
+                return true;
             }
             else
             {
@@ -99,6 +117,8 @@ namespace VRPROJ.Datastructure
                 node.SelfDestruct();
             }
 
+            currMin = 0;
+            currMax = 0;
             nodes.Clear();
         }
 
@@ -108,11 +128,14 @@ namespace VRPROJ.Datastructure
         /// <param name="path">The path to the file to parse</param>
         public void LoadFileToNodes(string path)
         {
+            Debug.Log("File path: " + path);
+
             if(ReadDataIntoNodes(path))
             {
                 if(SpawnNodes())
                 {
                     SetUpPublicData();
+                    SetNodeSizesBasedOnFriends();
                     INITIALIZED = true;
                 }
                 else
@@ -125,6 +148,26 @@ namespace VRPROJ.Datastructure
             {
                 Debug.Log("Could not read the file and failed to get new nodes.");
                 INITIALIZED = false;
+            }
+        }
+
+        void SetNodeSizesBasedOnFriends()
+        {
+
+            foreach (SocialNetworkNode snn in nodes)
+            {
+                if (!snn.isInstantiated())
+                    continue;
+
+                float percentVal = MAXFRIENDS - MINFRIENDS;
+                float baseVal = (snn.CountNumberFriends / percentVal);
+                Vector3 oldVect = snn.GetNode().transform.localScale;
+                
+                float freshX = Mathf.Max(baseVal * oldVect.x, 0.1f);
+                float freshY = Mathf.Max(baseVal * oldVect.y, 0.1f);
+                float freshZ = Mathf.Max(baseVal * oldVect.z, 0.1f);
+
+                snn.GetNode().transform.localScale = new Vector3(freshX, freshY, freshZ);
             }
         }
 
@@ -303,7 +346,7 @@ namespace VRPROJ.Datastructure
                 }
             }
         }
-    
+
         /// <summary>
         /// Conditionalize the required friends to be displayed.
         /// </summary>
@@ -319,13 +362,18 @@ namespace VRPROJ.Datastructure
                 return;
             }
 
+            Debug.Log("Current policy selected is: " + currCondition);
+
+            currMax = maximum;
+            currMin = minimum;
+
             // Set those that should be visible, visible. Invisible those that should be invisible.
             foreach(SocialNetworkNode snn in nodes)
             {
-                if (snn.CountNumberFriends < minimum || snn.CountNumberFriends > maximum)
-                    snn.Visible = false;
-                else
+                if (MatchesConditions(snn) && (snn.CountNumberFriends >= minimum && snn.CountNumberFriends <= maximum))
                     snn.Visible = true;
+                else
+                    snn.Visible = false;
             }
 
             // Assert that all the connections from the visible nodes display.
@@ -334,6 +382,79 @@ namespace VRPROJ.Datastructure
                 if (active.Visible)
                     active.AssertConnectionsVisible();
             }
+        }
+
+        /// <summary>
+        /// Helper method to check if the node matches the current line rendering policy.
+        /// </summary>
+        /// <param name="snn">The node to check</param>
+        /// <returns>The result of the match against the policy. True if matching.</returns>
+        public bool MatchesConditions(SocialNetworkNode snn)
+        {
+            switch(currCondition)
+            {
+                case 0:
+                    // Never true.
+                    return false; 
+                case 1:
+                    // Only true if matches the current selected.
+                    return snn.Equals(CURRENTSELECTED); 
+                case 2:
+                    // Only true if in the current selected has them on their friends list
+                    return (CURRENTSELECTED != null && CURRENTSELECTED.IsFriendPresent(snn));
+                case 3:
+                    // Always true.
+                    return true;
+                default:
+                    Debug.LogError("Failed to match a current condition!");
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Shorthand method to trigger the re-calculation of the friend lines.
+        /// </summary>
+        public void TriggerFriendLineRecalc()
+        {
+            if(currMin == 0 && currMax == 0)
+            {
+                currMin = MINFRIENDS;
+                currMax = MAXFRIENDS;
+            }
+            Debug.Log("Triggering Recalculation of friend lines....");
+            SetRangeOfFriendsVisible(currMin, currMax);
+        }
+
+        /// <summary>
+        /// Set and save the friend line rendering conditions.
+        /// </summary>
+        /// <param name="condition">The condition to set.</param>
+        public void SetConditions(int condition)
+        {
+            switch(condition)
+            {
+                case 0: // DO NOT RENDER NODES FRIENDS
+                    Debug.Log("Condition: No nodes friends rendering.");
+                    break;
+                case 1: // RENDER SELECTED NODES FRIENDS
+                    Debug.Log("Condition: Selected nodes friends rendering.");
+                    break;
+                case 2: // RENDER 1 DEEP FROM SELECTED NODES FRIENDS
+                    Debug.Log("Condition: One deep friends' connections rendering.");
+                    break;
+                case 3: // RENDER ALL NODES FRIENDS
+                    Debug.Log("Condition: All nodes friends rendering.");
+                    break;
+                default:
+                    Debug.LogError("Unknown value for condition: " + condition);
+                    return;
+            }
+
+            // Save the current conditon of friends rendering.
+            currCondition = condition;
+
+            // Trigger recalc of friends rendering.
+            TriggerFriendLineRecalc();
         }
     }
 

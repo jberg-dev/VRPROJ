@@ -9,15 +9,16 @@ public class FilterController : MonoBehaviour
 
     public GameObject maxFriendsSlider;
     public GameObject minFriendsSlider;
+    public GameObject FilterMenu;
     private Text minSelection;
     private Text maxSelection;
     private Slider minimum;
     private Slider maximum;
     private DataStructure ds;
 
-    public bool INITIALIZED
+    static public bool INITIALIZED
     {
-        private set; get;
+        set; get;
     }
 
 
@@ -32,11 +33,19 @@ public class FilterController : MonoBehaviour
     {
         if(!INITIALIZED && DataStructure.INITIALIZED)
         {
+            // NEED to have the menu rendering for init to work.
+            bool current = FilterMenu.activeSelf;
+            FilterMenu.SetActive(true);
             InitializeFiltermenu();
+            FilterMenu.SetActive(current);
+
             INITIALIZED = true;
         }
     }
 
+    /// <summary>
+    /// Set up the filter menu data values and text identifiers.
+    /// </summary>
     void InitializeFiltermenu()
     {
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("MINFRIENDS"))
