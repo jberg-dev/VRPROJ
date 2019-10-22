@@ -60,7 +60,7 @@ namespace VRPROJ.Datastructure
 
         void Awake()
         {
-            currCondition = 0;
+            currCondition = 1;
             INITIALIZED = false;
         }
 
@@ -136,6 +136,7 @@ namespace VRPROJ.Datastructure
                 {
                     SetUpPublicData();
                     SetNodeSizesBasedOnFriends();
+                    TriggerFriendLineRecalc();
                     INITIALIZED = true;
                 }
                 else
@@ -268,9 +269,11 @@ namespace VRPROJ.Datastructure
 
                 // Basically, increase the radius the more objects there are to display by multiplying
                 // the positions values with the square root of the amount of nodes, but do not go below the multiplier 1.
-                Vector3 vector = new Vector3((float)(y * Math.Max(3, Math.Floor(Math.Sqrt(nodes.Count)))),
-                                             (float)(z * Math.Max(3, Math.Floor(Math.Sqrt(nodes.Count)))),
-                                             (float)(x * Math.Max(3, Math.Floor(Math.Sqrt(nodes.Count)))));
+                Vector3 vector = new Vector3((float)(x * Math.Max(3, Math.Floor(Math.Sqrt(nodes.Count)))),
+                                             (float)(y * Math.Max(3, Math.Floor(Math.Sqrt(nodes.Count)))),
+                                             (float)(z * Math.Max(3, Math.Floor(Math.Sqrt(nodes.Count)))));
+
+                //Y Z X for top
 
                 // Get the reference center point of the sphere.
                 Vector3 centerPointPosition = centerPoint.gameObject.transform.position;
@@ -456,6 +459,21 @@ namespace VRPROJ.Datastructure
             // Trigger recalc of friends rendering.
             TriggerFriendLineRecalc();
         }
+
+        //Vector3 previous = new Vector3(0,0,0);
+
+        //public void RotateNodes(Vector3 delta)
+        //{
+        //    float angle = Vector3.Angle(previous, delta);
+
+        //    foreach (SocialNetworkNode snn in nodes)
+        //    {
+        //        if(snn.isInstantiated())
+        //        {
+        //            snn.GetNode().transform.Rotate(centerPoint.transform.position, angle);
+        //        }
+        //    }
+        //}
     }
 
 
