@@ -8,9 +8,10 @@ using Valve.VR;
 public class MenuControls : MonoBehaviour
 {
 
-    public GameObject ButtonMenu;
+    public GameObject MainMenu;
+    public GameObject FilterMenu;
     public GameObject InformationMenu;
-    public GameObject ErrorDialog;
+    public GameObject FileSelectionMenu;
     SteamVR_Action_Boolean menuPress;
 
     // Text fields of the InformationMenu
@@ -30,7 +31,7 @@ public class MenuControls : MonoBehaviour
     /// </summary>
     void Awake()
     {
-        ButtonMenu.SetActive(true);
+        FilterMenu.SetActive(true);
     }
 
     void Start()
@@ -111,7 +112,7 @@ public class MenuControls : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.H) || menuPressed)
         {
             // Make it a toggle so you press it again to turn it on and off.
-            ButtonMenu.SetActive(!ButtonMenu.activeSelf);
+            MainMenu.SetActive(!MainMenu.activeSelf);
             menuPressed = false;
         }
     }
@@ -147,13 +148,29 @@ public class MenuControls : MonoBehaviour
         noFriends.text = "Number of friends: " + snn.NumberFriends;
     }
 
+    public void ToggleFilterMenu()
+    {
+        FilterMenu.SetActive(!FilterMenu.activeSelf);
+    }
+
+    public void ToggleMainMenu()
+    {
+        MainMenu.SetActive(!MainMenu.activeSelf);
+    }
+
+    public void ToggleFileSelectionMenu()
+    {
+        FileSelectionMenu.SetActive(!FileSelectionMenu.activeSelf);
+    }
+
     /// <summary>
     /// Helper method to reset all the menus from showing.
     /// </summary>
     public void ResetMenus()
     {
-        ButtonMenu.SetActive(false);
+        FilterMenu.SetActive(false);
         InformationMenu.SetActive(false);
-        ErrorDialog.SetActive(false);
+        FileSelectionMenu.SetActive(false);
+        MainMenu.SetActive(false);
     }
 }

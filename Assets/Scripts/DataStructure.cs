@@ -19,6 +19,7 @@ namespace VRPROJ.Datastructure
     {
 
         public static bool debugging = true;
+        public static bool realVR = false;
         private static List<SocialNetworkNode> nodes;
         public GameObject centerPoint;
         public GameObject myPrefab;
@@ -59,30 +60,76 @@ namespace VRPROJ.Datastructure
         // Start is called before the first frame update
         void Start()
         {
-            
-            if(!debugging)
+
+        }
+
+        /// <summary>
+        /// Parse the provided file into nodes.
+        /// </summary>
+        /// <param name="path">The file to parse</param>
+        /// <returns></returns>
+        private bool ReadDataIntoNodes(string path)
+        {
+            if(File.Exists(path))
             {
-                // CALL FILE MANAGER HERE FOR SELECTION!
+                if (nodes != null && nodes.Count != 0)
+                    ResetNodes();
+
+                string jsontext = File.ReadAllText(path, Encoding.UTF8);
+                nodes = JsonConvert.DeserializeObject<List<SocialNetworkNode>>(jsontext);
             }
             else
             {
-                string jsontext = File.ReadAllText(@"C:\Users\Bergerking\VRPROJ\Assets\Scripts\GenData.json", Encoding.UTF8);
-                //string jsontext = File.ReadAllText(@"C:\Users\Bergerking\VRPROJ\Assets\Scripts\SimplifiedGenData.json", Encoding.UTF8);
-                nodes = JsonConvert.DeserializeObject<List<VRPROJ.Datastructure.SocialNetworkNode>>(jsontext);
+                Debug.LogError("PATH DID NOT EXIST!");
             }
 
-            if(!SpawnNodes())
+            return false;
+        }
+
+        /// <summary>
+        /// Clear the current active data structure.
+        /// </summary>
+        private void ResetNodes()
+        {
+            if (nodes == null)
+                return;
+
+            foreach (SocialNetworkNode node in nodes)
             {
-                // TODO
-                // Display error popup here.
+                node.SelfDestruct();
             }
 
-            SetUpPublicData();
-            INITIALIZED = true;
+            nodes.Clear();
+        }
+
+        /// <summary>
+        /// Load a specified file and parse it into data nodes and set up the surrounding data.
+        /// </summary>
+        /// <param name="path">The path to the file to parse</param>
+        public void LoadFileToNodes(string path)
+        {
+            if(ReadDataIntoNodes(path))
+            {
+                if(SpawnNodes())
+                {
+                    SetUpPublicData();
+                    INITIALIZED = true;
+                }
+                else
+                {
+                    Debug.Log("Could not spawn nodes with the provided data");
+                    INITIALIZED = false;
+                }                
+            }
+            else
+            {
+                Debug.Log("Could not read the file and failed to get new nodes.");
+                INITIALIZED = false;
+            }
         }
 
         Vector3 zero_pos = new Vector3(0, 0, 0);
-        System.Random r = new System.Random();
+        readonly System.Random r = new System.Random();
         public GameObject empty;
 
         // Update is called once per frame
@@ -110,9 +157,15 @@ namespace VRPROJ.Datastructure
                     lr.SetPositions(positions);
                 }
             }
+            if(Input.GetKeyDown(KeyCode.L))
+            {
+                ResetNodes();
+            }
         }
 
-
+        /// <summary>
+        /// Public reference data about the data structure active at the moment.
+        /// </summary>
         void SetUpPublicData()
         {
             if (nodes.Count == 0)
@@ -251,8 +304,14 @@ namespace VRPROJ.Datastructure
             }
         }
     
+        /// <summary>
+        /// Conditionalize the required friends to be displayed.
+        /// </summary>
+        /// <param name="minimum">The minimum amount of friends to have to be displayed</param>
+        /// <param name="maximum">The maximum amount of friends to have to be displayed</param>
         public void SetRangeOfFriendsVisible(int minimum, int maximum)
         {
+            // Error check.
             if(minimum < MINFRIENDS || maximum > MAXFRIENDS)
             {
                 Debug.LogError(String.Format("ERROR! min: {0}, minfriends: {1} | max: {2}, maxfriends: {3}", 
@@ -260,6 +319,7 @@ namespace VRPROJ.Datastructure
                 return;
             }
 
+            // Set those that should be visible, visible. Invisible those that should be invisible.
             foreach(SocialNetworkNode snn in nodes)
             {
                 if (snn.CountNumberFriends < minimum || snn.CountNumberFriends > maximum)
@@ -268,6 +328,7 @@ namespace VRPROJ.Datastructure
                     snn.Visible = true;
             }
 
+            // Assert that all the connections from the visible nodes display.
             foreach(SocialNetworkNode active in nodes)
             {
                 if (active.Visible)
@@ -601,6 +662,18 @@ namespace VRPROJ.Datastructure
         public bool isInstantiated()
         {
             return game_node != null;
+        }
+
+        public void SelfDestruct()
+        {
+            if (isInstantiated())
+                GameObject.Destroy(game_node);
+
+            foreach(LineRenderer lr in friendRelations.Values)
+            {
+                if (lr != null)
+                    GameObject.Destroy(lr.gameObject);
+            }
         }
 
         public void PutToDisplay()
