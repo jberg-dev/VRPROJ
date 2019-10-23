@@ -15,7 +15,6 @@ public class CameraSelection : MonoBehaviour
         // This is a marker for the scene building, not live rendering.
         marker.SetActive(false);
         
-
         if(RayCastingManager.emulator)
         {
             debugRig.SetActive(true);
@@ -27,9 +26,6 @@ public class CameraSelection : MonoBehaviour
             debugRig.SetActive(false);
             liveRig.SetActive(true);
         }
-
-
-
     }
 
     // Update is called once per frame

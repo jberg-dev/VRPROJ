@@ -8,7 +8,7 @@ public class RayCastingManager : MonoBehaviour
 {
     LineRenderer lr;
     public GameObject textObject;
-    public static bool emulator = true;
+    public static bool emulator = false;
     private Text hudDisplayText;
     private MenuControls controlMenu;
     private SteamVR_Input_Sources leftController = SteamVR_Input_Sources.LeftHand;
@@ -30,8 +30,8 @@ public class RayCastingManager : MonoBehaviour
         else
             Debug.LogError("FAILED TO LOCATE MENUS MENU CONTROLLER");
 
-        SteamVR_Actions.default_GrabPinch.AddOnStateDownListener(TriggerDown, rightController);
-        SteamVR_Actions.default_GrabPinch.AddOnStateUpListener(TriggerUp, rightController);
+        SteamVR_Actions.default_GrabPinch.AddOnStateDownListener(TriggerDown, leftController);
+        SteamVR_Actions.default_GrabPinch.AddOnStateUpListener(TriggerUp, leftController);
 
     }
 
@@ -70,14 +70,14 @@ public class RayCastingManager : MonoBehaviour
         // Get the controller model for when you're not in emulator mode.
         if (!emulator && rControllerModel == null)
         {
-            rControllerModel = GameObject.FindGameObjectWithTag("RightController");
+            rControllerModel = GameObject.FindGameObjectWithTag("LeftController");
         }
         
         // Decide the raycasting origins
         if (emulator)
         {
             origin = Camera.main.ViewportToWorldPoint(new Vector3(1.5f, 1.5f, 0.05f));
-            target = Camera.main.transform.forward *  99999f;
+            target = Camera.main.transform.forward * 999f;
         }
         else
         {
@@ -121,7 +121,9 @@ public class RayCastingManager : MonoBehaviour
                 controlMenu.DisplayInformationMenu(null);
                 potential_button.onClick.Invoke();
             }
-                
+
+            if(potential_hit != null)
+                Debug.Log("Potential hit: " + potential_hit.ToString());
 
             renderLaserLine = false;
             lr.enabled = false;
@@ -165,7 +167,7 @@ public class RayCastingManager : MonoBehaviour
     {
         RaycastHit hitCast;
 
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hitCast, 99f))
+        if (Physics.Raycast(source, target, out hitCast, 99f))
         {
             hit = hitCast.collider.gameObject;
             return true;
