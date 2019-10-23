@@ -16,15 +16,20 @@ public class CameraSelection : MonoBehaviour
         marker.SetActive(false);
         
 
-#if UNITY_EDITOR
-        debugRig.SetActive(true);
-        liveRig.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
-#else
-        debugRig.setActive(false);
-        liveRig.setActive(true);
-#endif
-        
+        if(RayCastingManager.emulator)
+        {
+            debugRig.SetActive(true);
+            liveRig.SetActive(false);
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else
+        {
+            debugRig.SetActive(false);
+            liveRig.SetActive(true);
+        }
+
+
+
     }
 
     // Update is called once per frame

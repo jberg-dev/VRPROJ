@@ -8,6 +8,7 @@ public class RayCastingManager : MonoBehaviour
 {
     LineRenderer lr;
     public GameObject textObject;
+    public static bool emulator = true;
     private Text hudDisplayText;
     private MenuControls controlMenu;
     private SteamVR_Input_Sources leftController = SteamVR_Input_Sources.LeftHand;
@@ -17,7 +18,6 @@ public class RayCastingManager : MonoBehaviour
     void Start()
     {
         lr = GetComponent<LineRenderer>();
-
 
         GameObject menu = GameObject.FindGameObjectWithTag("MenuControl");
         if (menu == null)
@@ -32,6 +32,7 @@ public class RayCastingManager : MonoBehaviour
 
         SteamVR_Actions.default_GrabPinch.AddOnStateDownListener(TriggerDown, rightController);
         SteamVR_Actions.default_GrabPinch.AddOnStateUpListener(TriggerUp, rightController);
+
     }
 
     void TriggerDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromController)
@@ -49,27 +50,54 @@ public class RayCastingManager : MonoBehaviour
     private bool renderLaserLine = false;
     private GameObject potential_hit = null;
     private DataManager potential_manager = null;
+    private Button potential_button = null;
     private string nameOfHovered = string.Empty;
     private bool rightControllerTriggerDown = false;
     private bool rightControllerTriggerUp = false;
+    private GameObject rControllerModel = null;
+    Vector3 origin, target;
 
     // Update is called once per frame
     void Update()
     {
+        // Null out the previous runs vars
         nameOfHovered = string.Empty;
         potential_hit = null;
         potential_manager = null;
+        origin = Vector3.zero;
+        target = Vector3.zero;
+
+        // Get the controller model for when you're not in emulator mode.
+        if (!emulator && rControllerModel == null)
+        {
+            rControllerModel = GameObject.FindGameObjectWithTag("RightController");
+        }
+        
+        // Decide the raycasting origins
+        if (emulator)
+        {
+            origin = Camera.main.ViewportToWorldPoint(new Vector3(1.5f, 1.5f, 0.05f));
+            target = Camera.main.transform.forward *  99999f;
+        }
+        else
+        {
+            if (rControllerModel == null)
+                Debug.LogError("COULD NOT FIND RIGHT CONTROLLER MODEL");
+            origin = rControllerModel.transform.position;
+            target = rControllerModel.transform.forward * 999f; // Mathf.Infinity;
+        }
 
         if (renderLaserLine)
         {
-            // TODO
-            // UPDATE SO IT CAN HIT OTHER THINGS LIKE MENUS TOO.
-
-            if (DoRaycast(out potential_hit))
+            if (DoRaycast(out potential_hit, origin, target))
             {
                 if (potential_hit.TryGetComponent<DataManager>(out potential_manager))
                 {
                     nameOfHovered = potential_manager.nodeData.FullName;
+                }
+                else if(potential_hit.TryGetComponent<Button>(out potential_button))
+                {
+                    nameOfHovered = potential_button.name;
                 }
             }
         }
@@ -88,8 +116,12 @@ public class RayCastingManager : MonoBehaviour
                 Debug.Log(potential_manager.nodeData.ToString());
                 controlMenu.DisplayInformationMenu(potential_manager.nodeData);
             }
-            else
+            else if(potential_button != null)
+            {
                 controlMenu.DisplayInformationMenu(null);
+                potential_button.onClick.Invoke();
+            }
+                
 
             renderLaserLine = false;
             lr.enabled = false;
@@ -100,20 +132,8 @@ public class RayCastingManager : MonoBehaviour
         if (renderLaserLine)
         {
 
-            Vector3 origin, target;
+            
             AttemptToSetText(nameOfHovered);
-
-#if UNITY_EDITOR
-
-            origin = Camera.main.ViewportToWorldPoint(new Vector3(1.5f, 1.5f, 0.05f));
-            target = Camera.main.transform.forward * 99f;
-
-#else
-            origin = GameObject.FindGameObjectWithTag("RightController").transform.forward;
-            target = GameObject.FindGameObjectWithTag("RightController").transform.forward * Mathf.Infinity;
-
-#endif
-
 
             lr.SetPosition(0, origin);
             lr.SetPosition(1, target);
@@ -141,7 +161,7 @@ public class RayCastingManager : MonoBehaviour
         }
     }
 
-    bool DoRaycast(out GameObject hit)
+    bool DoRaycast(out GameObject hit, Vector3 source, Vector3 target)
     {
         RaycastHit hitCast;
 
