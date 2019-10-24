@@ -6,33 +6,23 @@ using Valve.VR;
 
 public class Rotate : MonoBehaviour
 {
-    
+    public GameObject centerpoint;
+    private ISteamVR_Action_Vector2 rotator;
 
     // Start is called before the first frame update
     void Start()
     {
-        SteamVR_Actions.default_RotateSphere.AddOnAxisListener(RotateSphereAround, SteamVR_Input_Sources.RightHand);
-        //SteamVR_Actions.default_RotateSphere.AddOnChangeListener(RotateSphereAround, SteamVR_Input_Sources.RightHand);
-        
+        centerpoint = GameObject.FindGameObjectWithTag("CenterPoint");
+        rotator = SteamVR_Actions.default_RotateSphere;        
     }
-
-    private void RotateSphereAround(SteamVR_Action_Vector2 fromAction, SteamVR_Input_Sources fromSource, bool active)
-    {
-        Debug.Log("RotateSphere Active:");
-
-    }
-
-    private void RotateSphereAround(SteamVR_Action_Vector2 fromAction, SteamVR_Input_Sources fromSource, Vector2 axis, Vector2 delta)
-    {
-        Debug.Log("RotateSphere:");
-        Debug.Log(String.Format("Axis: {0} | Delta: {1}", fromAction.axis, fromAction.delta));
-    }
-
 
     // Update is called once per frame
     void Update()
     {
-        // Spin the object around the world origin at 20 degrees/second.
-
+        if(rotator.delta != Vector2.zero)
+        {
+            transform.RotateAround(centerpoint.transform.position, new Vector3(rotator.delta.x, rotator.delta.y),
+                Mathf.Sqrt(Mathf.Pow(rotator.delta.x, 2f) + Mathf.Pow(rotator.delta.y, 2f)) * 20);
+        }
     }
 }

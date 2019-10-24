@@ -8,7 +8,7 @@ public class RayCastingManager : MonoBehaviour
 {
     LineRenderer lr;
     public GameObject textObject;
-    public static bool emulator = false;
+    public static bool emulator = true;
     private Text hudDisplayText;
     private MenuControls controlMenu;
     private SteamVR_Input_Sources leftController = SteamVR_Input_Sources.LeftHand;
@@ -51,6 +51,7 @@ public class RayCastingManager : MonoBehaviour
     private GameObject potential_hit = null;
     private DataManager potential_manager = null;
     private Button potential_button = null;
+    private Slider potential_slider = null;
     private string nameOfHovered = string.Empty;
     private bool rightControllerTriggerDown = false;
     private bool rightControllerTriggerUp = false;
@@ -100,6 +101,10 @@ public class RayCastingManager : MonoBehaviour
                 {
                     nameOfHovered = potential_button.name;
                 }
+                else if(potential_hit.TryGetComponent<Slider>(out potential_slider))
+                {
+                    nameOfHovered = potential_slider.name;
+                }
             }
         }
 
@@ -122,10 +127,13 @@ public class RayCastingManager : MonoBehaviour
                 Debug.Log("Button found: " + potential_button.name);
                 controlMenu.DisplayInformationMenu(null);
                 potential_button.onClick.Invoke();
+                controlMenu.SetActiveSlider(null);
             }
-
-            if(potential_hit != null)
-                Debug.Log("Potential hit: " + potential_hit.ToString());
+            else if(potential_slider != null)
+            {
+                potential_slider.Select();
+                controlMenu.SetActiveSlider(potential_slider);
+            }
 
             renderLaserLine = false;
             lr.enabled = false;

@@ -14,6 +14,8 @@ public class MenuControls : MonoBehaviour
     public GameObject FileSelectionMenu;
 
     private DataStructure data;
+    private Slider activeSlider;
+    ISteamVR_Action_Vector2 modSlider;
     SteamVR_Action_Boolean MenuPress;
 
     // Text fields of the InformationMenu
@@ -36,6 +38,7 @@ public class MenuControls : MonoBehaviour
 
     void Start()
     {
+        modSlider = SteamVR_Actions.default_ChangeSliderValue;
         SteamVR_Actions.default_MenuPress.AddOnStateDownListener(TriggerMenuDown, SteamVR_Input_Sources.Any);
         ResetMenus();
         
@@ -110,6 +113,23 @@ public class MenuControls : MonoBehaviour
     /// </summary>
     void Update()
     {
+        if(activeSlider != null && modSlider.delta != Vector2.zero)
+        {
+            // Axis.Y can range from -1.0 to 1.0. Add 1 to range it from 0 to 2.
+            float val = modSlider.axis.y + 1.0f;
+            
+            // Get the total range of avaliable values, max minus min. divide the previous val with 2 to get
+            // a percent value of how far on the trackpad you have moved. Take the floor value of that, since
+            // we're only interested in whole numbers.
+            float percentEndVal = Mathf.Floor((activeSlider.maxValue - activeSlider.minValue) * (val/2f));
+
+            // Set the slider value to the final value, add min val to get a proper representation.
+            //activeSlider.value = percentEndVal + activeSlider.minValue;
+
+            // Attempt to invoke the change to properly use the other written code.
+            activeSlider.onValueChanged.Invoke(percentEndVal + activeSlider.minValue);
+        }
+
         if(Input.GetKeyDown(KeyCode.H))
         {
             // Make it a toggle so you press it again to turn it on and off.
@@ -154,6 +174,7 @@ public class MenuControls : MonoBehaviour
     public void ToggleFilterMenu()
     {
         FilterMenu.SetActive(!FilterMenu.activeSelf);
+        activeSlider = null;
     }
 
     public void ToggleMainMenu()
@@ -180,6 +201,11 @@ public class MenuControls : MonoBehaviour
             InitializeData();
 
         data.SetConditions(condition);
+    }
+
+    public void SetActiveSlider(Slider slide)
+    {
+
     }
 
     private void InitializeData()

@@ -21,6 +21,7 @@ TagManager:
   - maxCurrentSelection
   - minCurrentSelection
   - DataStructure
+  - CenterPoint
   layers:
   - Default
   - TransparentFX
