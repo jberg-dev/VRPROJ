@@ -41,8 +41,16 @@
       "requirement": "optional"
     },
     {
-      "name": "/actions/default/in/menuPress",
+      "name": "/actions/default/in/MenuPress",
       "type": "boolean"
+    },
+    {
+      "name": "/actions/default/in/RotateSphere",
+      "type": "vector2"
+    },
+    {
+      "name": "/actions/default/in/ChangeSliderValue",
+      "type": "vector2"
     },
     {
       "name": "/actions/default/out/Haptic",

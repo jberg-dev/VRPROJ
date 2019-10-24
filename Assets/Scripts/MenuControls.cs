@@ -14,7 +14,7 @@ public class MenuControls : MonoBehaviour
     public GameObject FileSelectionMenu;
 
     private DataStructure data;
-    SteamVR_Action_Boolean menuPress;
+    SteamVR_Action_Boolean MenuPress;
 
     // Text fields of the InformationMenu
     private Text 
@@ -26,8 +26,6 @@ public class MenuControls : MonoBehaviour
         registered = null, 
         noFriends = null;
 
-    private bool menuPressed = false;
-
     /// <summary>
     /// Make sure there are no Menus visible on the start of the application.
     /// </summary>
@@ -38,13 +36,14 @@ public class MenuControls : MonoBehaviour
 
     void Start()
     {
+        SteamVR_Actions.default_MenuPress.AddOnStateDownListener(TriggerMenuDown, SteamVR_Input_Sources.Any);
         ResetMenus();
-        menuPress.AddOnStateDownListener(TriggerMenuDown, SteamVR_Input_Sources.Any);
+        
     }
 
     void TriggerMenuDown(SteamVR_Action_Boolean fromAction, SteamVR_Input_Sources fromController)
     {
-        menuPressed = true;
+        MainMenu.SetActive(!MainMenu.activeSelf);
     }
 
     /// <summary>
@@ -111,11 +110,10 @@ public class MenuControls : MonoBehaviour
     /// </summary>
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.H) || menuPressed)
+        if(Input.GetKeyDown(KeyCode.H))
         {
             // Make it a toggle so you press it again to turn it on and off.
             MainMenu.SetActive(!MainMenu.activeSelf);
-            menuPressed = false;
         }
     }
 

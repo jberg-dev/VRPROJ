@@ -89,11 +89,27 @@ namespace Valve.VR
             }
         }
         
-        public virtual SteamVR_Action_Boolean menuPress
+        public virtual SteamVR_Action_Boolean MenuPress
         {
             get
             {
-                return SteamVR_Actions.default_menuPress;
+                return SteamVR_Actions.default_MenuPress;
+            }
+        }
+        
+        public virtual SteamVR_Action_Vector2 RotateSphere
+        {
+            get
+            {
+                return SteamVR_Actions.default_RotateSphere;
+            }
+        }
+        
+        public virtual SteamVR_Action_Vector2 ChangeSliderValue
+        {
+            get
+            {
+                return SteamVR_Actions.default_ChangeSliderValue;
             }
         }
         

@@ -63,6 +63,7 @@ public class RayCastingManager : MonoBehaviour
         // Null out the previous runs vars
         nameOfHovered = string.Empty;
         potential_hit = null;
+        potential_button = null;
         potential_manager = null;
         origin = Vector3.zero;
         target = Vector3.zero;
@@ -118,6 +119,7 @@ public class RayCastingManager : MonoBehaviour
             }
             else if(potential_button != null)
             {
+                Debug.Log("Button found: " + potential_button.name);
                 controlMenu.DisplayInformationMenu(null);
                 potential_button.onClick.Invoke();
             }
@@ -167,13 +169,19 @@ public class RayCastingManager : MonoBehaviour
     {
         RaycastHit hitCast;
 
-        if (Physics.Raycast(source, target, out hitCast, 99f))
+        if (Physics.Raycast(source, target, out hitCast, Mathf.Infinity))
         {
             hit = hitCast.collider.gameObject;
             return true;
         }
-        else
+        else if (Physics.Raycast(source, target, out hitCast, Mathf.Infinity, 5))
         {
+            hit = hitCast.collider.gameObject;
+            Debug.Log("Hitcast point: " + hitCast.point);
+            return true;
+        }
+        else
+        { 
             hit = null;
             return false;
         }
