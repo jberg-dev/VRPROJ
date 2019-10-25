@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -460,6 +461,20 @@ namespace VRPROJ.Datastructure
             TriggerFriendLineRecalc();
         }
 
+        /// <summary>
+        /// Method to make sure LineRenderers follow when the position of the GameObjects rotate in space.
+        /// </summary>
+        public void AssureLinesFollow()
+        {
+            foreach (SocialNetworkNode snn in nodes)
+            {
+                if(snn.Visible)
+                {
+                    snn.AssureLinesFollow();
+                }
+            }
+        }
+
         //Vector3 previous = new Vector3(0,0,0);
 
         //public void RotateNodes(Vector3 delta)
@@ -699,6 +714,24 @@ namespace VRPROJ.Datastructure
         public SocialNetworkNode()
         {
             friendRelations = new Dictionary<SocialNetworkNode, LineRenderer>();
+        }
+
+        public void AssureLinesFollow()
+        {
+            LineRenderer lr;
+            SocialNetworkNode snn;
+
+            for(int i = 0; i < friendRelations.Count; i++)
+            {
+                snn = friendRelations.Keys.ElementAt(i);
+                lr = friendRelations.Values.ElementAt(i);
+
+                if (!isInstantiated() || !snn.isInstantiated())
+                    continue;
+
+                lr.SetPosition(0, game_node.transform.position);
+                lr.SetPosition(1, snn.GetNode().transform.position);
+            }
         }
 
         void SetNodeAlpha(float alpha)

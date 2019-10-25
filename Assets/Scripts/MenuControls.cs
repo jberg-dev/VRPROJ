@@ -113,8 +113,10 @@ public class MenuControls : MonoBehaviour
     /// </summary>
     void Update()
     {
-        if(activeSlider != null && modSlider.delta != Vector2.zero)
+        if(activeSlider != null && modSlider.axis != Vector2.zero)
         {
+            Debug.Log("Entered modify active slider");
+
             // Axis.Y can range from -1.0 to 1.0. Add 1 to range it from 0 to 2.
             float val = modSlider.axis.y + 1.0f;
             
@@ -124,10 +126,11 @@ public class MenuControls : MonoBehaviour
             float percentEndVal = Mathf.Floor((activeSlider.maxValue - activeSlider.minValue) * (val/2f));
 
             // Set the slider value to the final value, add min val to get a proper representation.
-            //activeSlider.value = percentEndVal + activeSlider.minValue;
+            activeSlider.value = percentEndVal + activeSlider.minValue;
 
+            Debug.Log(activeSlider.value);
             // Attempt to invoke the change to properly use the other written code.
-            activeSlider.onValueChanged.Invoke(percentEndVal + activeSlider.minValue);
+            //activeSlider.onValueChanged.Invoke(percentEndVal + activeSlider.minValue);
         }
 
         if(Input.GetKeyDown(KeyCode.H))
@@ -158,8 +161,14 @@ public class MenuControls : MonoBehaviour
         else
             InformationMenu.SetActive(true);
 
+        // Assign the currently selected node to the keeper value;
         data.CURRENTSELECTED = snn;
+
+        // Trigger friend line recalc to decide what lines should be displayed;
         data.TriggerFriendLineRecalc();
+
+        // Assure that the friend lines follow with the node when we move around the GameObjects in space;
+        data.AssureLinesFollow();
 
         // Grab the data from the node and set the displaying text fields;
         fullName.text = "Name: " + snn.FullName;
