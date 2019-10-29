@@ -131,4 +131,25 @@ public class FilterController : MonoBehaviour
         maxSelection.text = maximum.value.ToString();
         ds.SetRangeOfFriendsVisible((int)minimum.value, (int)maximum.value);
     }
+
+    public void ChangeMinSliderValue(int byAmount)
+    {
+        float potential_value = minimum.value + byAmount;
+
+        if (maximum.value < potential_value)
+            potential_value = maximum.value;
+
+        minimum.value = potential_value;
+    }
+
+    public void ChangeMaxSliderValue(int byAmount)
+    {
+        float potential_value = maximum.value + byAmount;
+
+        if (minimum.value > potential_value)
+            potential_value = minimum.value;
+
+        maximum.value = potential_value;
+    }
+
 }

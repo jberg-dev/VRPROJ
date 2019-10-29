@@ -14,6 +14,7 @@ public class MenuControls : MonoBehaviour
     public GameObject FileSelectionMenu;
 
     private DataStructure data;
+    private FilterController filters;
     private Slider activeSlider;
     ISteamVR_Action_Vector2 modSlider;
     SteamVR_Action_Boolean MenuPress;
@@ -133,7 +134,7 @@ public class MenuControls : MonoBehaviour
             //activeSlider.onValueChanged.Invoke(percentEndVal + activeSlider.minValue);
         }
 
-        if(Input.GetKeyDown(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.H))
         {
             // Make it a toggle so you press it again to turn it on and off.
             MainMenu.SetActive(!MainMenu.activeSelf);
@@ -178,6 +179,35 @@ public class MenuControls : MonoBehaviour
         address.text = "Address: " + snn.Address;
         registered.text = "Joined: " + snn.Registered;
         noFriends.text = "Number of friends: " + snn.NumberFriends;
+    }
+
+    public void ChangeMinSliderValue(int byAmount)
+    {
+        InitializeFilterController();
+        filters.ChangeMinSliderValue(byAmount);
+    }
+
+    public void ChangeMaxSliderValue(int byAmount)
+    {
+        InitializeFilterController();
+        filters.ChangeMaxSliderValue(byAmount);
+    }
+
+    public void InitializeFilterController()
+    {
+        if (filters == null)
+        {
+            GameObject filter = GameObject.FindGameObjectWithTag("FilterController");
+
+            if (filter.TryGetComponent<FilterController>(out FilterController attempt))
+            {
+                filters = attempt;
+            }
+            else
+            {
+                Debug.LogError("Failed to get filter controller!");
+            }
+        }
     }
 
     public void ToggleFilterMenu()
