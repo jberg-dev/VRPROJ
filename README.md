@@ -26,9 +26,26 @@ To use the simulator mode,
 To use VR mode (VIVE)
 1) Make sure that the boolean value Simulator in RayCasting Manager is set to FALSE.
 2) The menu button above the trackpad calls the menus.
-3) One trigger triggers a laser pointer which is used to select everything.
-3A) Everything includes nodes and menu options.
+3) One trigger triggers a laser pointer which is used to select everything. Everything includes nodes and menu options.
 4) On the opposite controller from the laser pointer, the trackpad will rotate the spawned nodes.
+
+## Acknowledgements
+
+Newtonsoft JSON
+Copyright (c) 2007 James Newton-King
+
+SteamVR Unity Plugin - v2.4.5
+Copyright (c) Valve Corporation, All rights reserved.
+
+Oculus for Unity
+© 2019 Oculus VR, LLC. All Rights Reserved.
+
+Unity
+© 2019 Unity Technologies
+
+Microsoft Visual Studio
+© Microsoft 2019
+
 
 ## Contributing
 
