@@ -8,7 +8,7 @@ public class RayCastingManager : MonoBehaviour
 {
     LineRenderer lr;
     public GameObject textObject;
-    public static bool emulator = true;
+    public static bool emulator = false;
     private Text hudDisplayText;
     private MenuControls controlMenu;
     private SteamVR_Input_Sources leftController = SteamVR_Input_Sources.LeftHand;
