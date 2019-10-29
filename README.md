@@ -13,15 +13,18 @@ Due to storage limitations on github, I have not commited the SteamVR Dev Kit or
 ## Usage
 
 This project were developed for the VIVE PRO VR on a Windows machine, so any bindings have only been set up for it.
-It shouldn't be difficult to change things around with another set, though, as the VR base is built with SteamVR 2.2, and it very rebindable by design.
+It shouldn't be difficult to change things around with another set, though, as the VR base is built with SteamVR 2.2, and it is very rebindable by design.
 
 The Oculus kit is used for its mouse-and-keyboard VR simulation experience. It's not great, but it works.
 
 To use the simulator mode, 
-1) Make sure that the boolean value Simulator in RayCasting Manager is set to true.
+1) Make sure that the boolean value Simulator in RayCasting Manager is set to TRUE.
 2) Make sure that the MENUS canvas is set to Screen Overlay.
 3) Press H to open menus.
 4) Press L to delete all nodes on the screen.
+5) Use the mouse for anything else. 
+6) Hold control to be able to pan up and down.
+7) ASDW to move around. Shift modifies speed to make it quicker.
 
 To use VR mode (VIVE)
 1) Make sure that the boolean value Simulator in RayCasting Manager is set to FALSE.
